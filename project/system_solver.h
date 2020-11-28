@@ -47,7 +47,7 @@ template<class U>
 int QRDecomposition(const ub::matrix<U>& sourceMatrix, ub::matrix<U>& Q, ub::matrix<U>& R);
 
 template<class T>
-[[maybe_unused]] int QRSolve(const ub::matrix<T>& sourceMatrix, const ub::matrix<T>& sourceVector,
+int QRSolve(const ub::matrix<T>& sourceMatrix, const ub::matrix<T>& sourceVector,
             ub::matrix<T>& solution);
 
 template <class T>
@@ -60,6 +60,8 @@ int invertMatrix(const ub::matrix<T>& A, ub::matrix<T>& result);
 template <class T>
 int invertDiagMatrix(const ub::matrix<T>& A, ub::matrix<T>& result);
 
+template <class T>
+int tridiagonalMatrxSolve(const ub::matrix<T>& A, const ub::matrix<T>& B, )
 
 
 template<class T>
