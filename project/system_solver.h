@@ -61,7 +61,7 @@ template <class T>
 int invertDiagMatrix(const ub::matrix<T>& A, ub::matrix<T>& result);
 
 template <class T>
-int tridiagonalMatrxSolve(const ub::matrix<T>& A, const ub::matrix<T>& B, )
+int tridiagonalMatrixSolve(const ub::matrix<T>& A, const ub::matrix<T>& B, ub::matrix<T>& solution);
 
 
 template<class T>
@@ -905,13 +905,55 @@ int diag3RelaxaionIteration(const ub::matrix<T>& sourceMatrix, const ub::matrix<
 
 template <class T>
 T kEstimation(T q, T p0, T eps) {
-//  std::cout << q << " " << p0 << " " << eps << std::endl;
-
-//  std::cout << eps * (1 - q) / p0 << std::endl;
-
   T up = std::log<T>(eps * (1 - q) / p0).real();
   T down = std::log<T>(q).real();
-
-//  std::cout << up << " " << down << std::endl;
   return up / down;
+}
+
+template <class T>
+int tridiagonalMatrixSolve(const ub::matrix<T>& A, const ub::matrix<T>& B, ub::matrix<T>& solution) {
+  ssize_t n = A.size2();
+
+  auto ai = [&](ssize_t i) -> T {
+    if (i == 0) {
+      throw std::runtime_error("index is not correct");
+    }
+    return A(0, i);
+  };
+
+  auto bi = [&](ssize_t i) -> T {
+    return A(1, i);
+  };
+
+  auto ci = [&](ssize_t i) -> T {
+    if (i == (A.size2() - 1)) {
+      throw std::runtime_error("index is not correct");
+    }
+    return A(2, i);
+  };
+
+  auto di = [&](ssize_t i) -> T {
+    return B(i, 0);
+  };
+
+  std::vector<T> cm(n - 1);
+  cm[0] = ci[0] / bi[0];
+  for (ssize_t i = 1; i < (n - 1); ++i) {
+    cm[i] = ci[i] / (bi[i]  - ai[i] * cm[i - 1]);
+  }
+
+  std::vector<T> dm(n - 1);
+  dm[0] = di[0] / bi[0];
+  for (ssize_t i = 1; i < n; ++i) {
+    dm[i] = (di[i] - ai[i] * dm[i - 1]) / (bi[i] - ai[i] * cm[i -1]);
+  }
+
+  solution.resize(n, 1);
+  ub::matrix<T>& X = solution;
+  X(n - 1, 0) = dm[n - 1];
+  for (ssize_t i = n - 2; i >= 0; ++i) {
+    X(i, 0) = dm[i] - cm[i] * X(i + 1, 0);
+  }
+
+  return 0;
 }
