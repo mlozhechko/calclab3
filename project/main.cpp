@@ -5,12 +5,24 @@
 #include <sstream>
 #include <memory>
 
-#include "system_solver.h"
-#include "matrix_utils.h"
-#include "eigen_solver.h"
 #include "interpolation.h"
-#include "function_holder.h"
+#include "test_funcions.h"
+
+#include "matplotlibcpp.h"
+
+namespace plt = matplotlibcpp;
 namespace ub = boost::numeric::ublas;
+
+template <class T>
+std::vector<T> evalForGrid(const FuncHolder<T>& func, const std::vector<T>& grid) {
+  const ssize_t n = grid.size();
+  std::vector<T> yValues(n);
+  for (size_t i = 0; i < n; ++i) {
+    yValues[i] = func(grid[i]);
+  }
+
+  return yValues;
+}
 
 template <class T>
 int lab3Main(int argc, char** argv) {
@@ -29,11 +41,11 @@ int lab3Main(int argc, char** argv) {
    * could be implemented better with XXXmap container
    */
   std::shared_ptr<FuncHolder<T>> func{nullptr};
-  if (functionId == "Test1") {
+  if (functionId == "test1") {
     func = std::make_shared<Test1<T>>();
-  } else if (functionId == "Test2") {
+  } else if (functionId == "test2") {
     func = std::make_shared<Test2<T>>();
-  } else if (functionId == "Test3") {
+  } else if (functionId == "test3") {
     func = std::make_shared<Test3<T>>();
   } else if (functionId == "runge") {
     func = std::make_shared<Runge<T, 25>>();
@@ -53,7 +65,20 @@ int lab3Main(int argc, char** argv) {
     generateChebyshevGrid(gridN, func->a(), func->b(), grid);
   }
 
+  std::ostringstream os;
+  for (auto& it : grid) {
+    os << it << " ";
+  }
+  std::cout << "generated grid: " << os.str() << std::endl;
 
+  LagInt lagrangeInt(*func, grid);
+
+  std::vector<T> canonicGrid;
+  generateUniformGrid(1024, func->a(), func->b(), canonicGrid);
+  plt::plot(canonicGrid, evalForGrid(*func, canonicGrid));
+  plt::plot(canonicGrid, evalForGrid(lagrangeInt, canonicGrid));
+
+  plt::save("./xxx.png");
 
   return 0;
 }
