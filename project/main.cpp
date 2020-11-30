@@ -14,11 +14,14 @@ namespace plt = matplotlibcpp;
 namespace ub = boost::numeric::ublas;
 
 template <class T>
-std::vector<T> evalForGrid(const FuncHolder<T>& func, const std::vector<T>& grid) {
+std::vector<T> evalForGrid(const FuncHolder<T>& func, const std::vector<T>& grid, bool isPrint = false) {
   const ssize_t n = grid.size();
   std::vector<T> yValues(n);
   for (size_t i = 0; i < n; ++i) {
     yValues[i] = func(grid[i]);
+    if (isPrint) {
+      std::cout << grid[i] << " " << func(grid[i]) << std::endl;
+    }
   }
 
   return yValues;
@@ -49,6 +52,8 @@ int lab3Main(int argc, char** argv) {
     func = std::make_shared<Test3<T>>();
   } else if (functionId == "runge") {
     func = std::make_shared<Runge<T, 25>>();
+  } else if (functionId == "target") {
+    func = std::make_shared<TestVar<T>>();
   }
 
   if (!cmdOptionExists(argv, argv + argc, "-n")) {
@@ -65,20 +70,50 @@ int lab3Main(int argc, char** argv) {
     generateChebyshevGrid(gridN, func->a(), func->b(), grid);
   }
 
+#define DEBUG_RESULTS
+#ifdef DEBUG_RESULTS
   std::ostringstream os;
   for (auto& it : grid) {
     os << it << " ";
   }
   std::cout << "generated grid: " << os.str() << std::endl;
+#endif
 
-  LagInt lagrangeInt(*func, grid);
+  std::shared_ptr<FuncHolder<T>> interpFunc{nullptr};
+
+  std::string interpolationMethod;
+  if (!cmdOptionExists(argv, argv + argc, "-method")) {
+    std::cerr << "interpolation method has not been specified" << std::endl;
+    return -1;
+  }
+  interpolationMethod = getCmdOption(argv, argv + argc, "-method");
+
+  if (interpolationMethod == "lagrange") {
+    interpFunc = std::make_shared<LagInt<T>>(*func, grid);
+  } else if (interpolationMethod == "spline") {
+    interpFunc = std::make_shared<CubicSplineInt<T>>(*func, grid);
+  } else {
+    std::cerr << "interpolation method incorrect" << std::endl;
+    return -1;
+  }
+
+#ifdef DEBUG_RESULTS
+  std::cout << "print souce (x_i, y_i) pairs: " << std::endl;
+  evalForGrid(*func, grid, true);
+#endif
 
   std::vector<T> canonicGrid;
-  generateUniformGrid(1024, func->a(), func->b(), canonicGrid);
-  plt::plot(canonicGrid, evalForGrid(*func, canonicGrid));
-  plt::plot(canonicGrid, evalForGrid(lagrangeInt, canonicGrid));
+  generateUniformGrid(512, func->a(), func->b(), canonicGrid);
+  plt::plot(canonicGrid, evalForGrid(*func, canonicGrid), "");
+  plt::plot(canonicGrid, evalForGrid(*interpFunc, canonicGrid), "--");
+  plt::plot(grid, evalForGrid(*func, grid), "o");
 
-  plt::save("./xxx.png");
+  plt::ylim(-1, 2);
+
+//  std::string filename = "./results/" + functionId + "_" + gridType + "_" + std::to_string(gridN) + ".png";
+  std::string filename = "results/result.png";
+
+  plt::save(filename, 500);
 
   return 0;
 }

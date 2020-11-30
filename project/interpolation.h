@@ -161,18 +161,22 @@ public:
       return (yi(i) - yi(i - 1)) / hi(i);
     };
 
-    for (ssize_t i = 1; i < n; ++i) {
+    for (ssize_t i = 0; i < n; ++i) {
       ai[i] = yi(i);
     }
 
-    ub::matrix<T> A = ub::zero_matrix(3, n - 2);
+    ub::matrix<T> A; //(ub::zero_matrix(3, n - 2));
+    A.resize(3, n - 2);
 
-    A(1, 0) = 2 * (hi[1] + hi[2]);
-    A(2, 0) = hi[1];
+    A(1, 0) = 2 * (hi(1) + hi(2));
+    A(2, 0) = hi(1);
     for (ssize_t i = 1; i < n - 2; ++i) {
       A(0, i) = hi(i + 1);
       A(1, i) = 2 * (hi(i + 1) + hi(i + 2));
-      A(2, i) = hi(i + 2);
+
+      if (i != n - 3) {
+        A(2, i) = hi(i + 2);
+      }
     }
 
     ub::matrix<T> B(n - 2, 1);
@@ -183,19 +187,48 @@ public:
     ub::matrix<T> solution;
     tridiagonalMatrixSolve(A, B, solution);
 
-    ci[n] = ci[0] = 0;
+//#define DEBUG_SPLINE_INTERPOLATION
+#ifdef DEBUG_SPLINE_INTERPOLATION
+    ub::matrix<T> Atest = ub::zero_matrix(n - 2, n - 2);
+    for (size_t i = 0; i < n - 2; ++i) {
+      if (i != 0) {
+        Atest(i, i - 1) = A(0, i);
+      }
+      Atest(i, i) = A(1, i);
+      if (i != n - 3) {
+        Atest(i, i + 1) = A(2, i);
+      }
+    }
+    ub::matrix<T> testSolution;
+    gaussSolve(Atest, B, testSolution);
+
+    for (ssize_t i = 0; i < testSolution.size1(); ++i) {
+      if (std::abs(testSolution(i, 0) - solution(i, 0)) > std::numeric_limits<T>::epsilon()) {
+        std::cerr << "warning. tridiagonal method linear equation solution seems to be wrong "
+                  << std::endl;
+      }
+    }
+#endif
+
+    ci[n - 1] = ci[0] = 0;
     for (ssize_t k = 1; k < n - 1; ++k) {
       ci[k] = solution(k - 1, 0);
     }
 
     for (ssize_t i = 0; i < n; ++i) {
       bi[i] = gi(i + 1) - (ci[i + 1] + 2. * ci[i]) * hi(i + 1) / 3.;
-      di[i] = (ci[i + 1] - ci[i]) / (3. * hi(i + 1));
+      di.at(i) = (ci[i + 1] - ci[i]) / (3. * hi(i + 1));
     }
 
     for (ssize_t i = 0; i < n - 1; ++i) {
-      m_splineInt.emplace_back(func, ai[i], bi[i], di[i], ci[i], xi[i]);
+      m_splineInt.emplace_back(func, ai[i], bi[i], ci[i], di[i], xi[i]);
     }
+
+#ifdef DEBUG_SPLINE_INTERPOLATION
+    for (ssize_t i = 0; i < n; ++i) {
+      std::cout << "a: " << ai[i] << " b: " << bi[i] << " c: " << ci[i] << " d: " << di[i] << std::endl;
+    }
+#endif
   };
 
   T operator()(const T& x) const override {
@@ -208,6 +241,8 @@ public:
         return m_splineInt[i - 1](x);
       }
     }
+
+    return m_splineInt.back()(x);
   }
 
 private:

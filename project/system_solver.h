@@ -937,21 +937,21 @@ int tridiagonalMatrixSolve(const ub::matrix<T>& A, const ub::matrix<T>& B, ub::m
   };
 
   std::vector<T> cm(n - 1);
-  cm[0] = ci[0] / bi[0];
+  cm[0] = ci(0) / bi(0);
   for (ssize_t i = 1; i < (n - 1); ++i) {
-    cm[i] = ci[i] / (bi[i]  - ai[i] * cm[i - 1]);
+    cm[i] = ci(i) / (bi(i)  - ai(i) * cm[i - 1]);
   }
 
   std::vector<T> dm(n - 1);
-  dm[0] = di[0] / bi[0];
+  dm[0] = di(0) / bi(0);
   for (ssize_t i = 1; i < n; ++i) {
-    dm[i] = (di[i] - ai[i] * dm[i - 1]) / (bi[i] - ai[i] * cm[i -1]);
+    dm[i] = (di(i) - ai(i) * dm[i - 1]) / (bi(i) - ai(i) * cm[i -1]);
   }
 
   solution.resize(n, 1);
   ub::matrix<T>& X = solution;
   X(n - 1, 0) = dm[n - 1];
-  for (ssize_t i = n - 2; i >= 0; ++i) {
+  for (ssize_t i = n - 2; i >= 0; --i) {
     X(i, 0) = dm[i] - cm[i] * X(i + 1, 0);
   }
 

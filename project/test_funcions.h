@@ -41,3 +41,19 @@ public:
     return 1. / div;
   }
 };
+
+template <class T>
+class TestVar : public FuncHolder<T> {
+public:
+  TestVar() : FuncHolder<T>(-1, 1) {};
+
+  T operator()(const T& x) const override {
+//    R1 := Sin((2*Degree(x,2)-x+2*Degree(7,1/3)-5)/2);
+//    R2 := Exp((Degree(x,2)+2*x+1)/(7*x+1));
+
+    T r1 = std::sin((2. * std::pow(x, 2.) - x + 2. * std::pow(7., 1. / 3.) - 5.) / 2.);
+    T r2 = std::exp((std::pow(x, 2.) + 2. * x + 1.) / (7. * x + 1.));
+
+    return r1 + r2 - 1.5;
+  }
+};
