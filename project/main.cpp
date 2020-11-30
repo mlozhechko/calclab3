@@ -113,6 +113,10 @@ int lab3Main(int argc, char** argv) {
 //  std::string filename = "./results/" + functionId + "_" + gridType + "_" + std::to_string(gridN) + ".png";
   std::string filename = "results/result.png";
 
+  std::cout << "calculation error norm: "
+            << calculationErrorNorm(*func, *interpFunc, canonicGrid)
+            << std::endl;
+
   plt::save(filename, 500);
 
   return 0;
