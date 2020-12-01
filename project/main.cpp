@@ -28,6 +28,81 @@ std::vector<T> evalForGrid(const FuncHolder<T>& func, const std::vector<T>& grid
 }
 
 template <class T>
+int lab3generateFunctionReport(const FuncHolder<T>& func, const std::string& mode) {
+  std::vector<T> canonicGrid;
+  generateUniformGrid(512, func.a(), func.b(), canonicGrid);
+
+  ssize_t i = 1;
+  T lastCalcError = 1;
+
+  if (mode == "tab1_lag") {
+    std::cout
+        << R"(\hline Количество узлов n & \pbox{20cm}{Норма ошибки\\ на равномерной сетке} & \pbox{20cm}{Норма ошибки\\ на чебышевской сетке} \\ \hline)"
+        << std::endl;
+  }
+
+  for (const auto& n : {4, 8, 16, 32, 64, 128}) {
+    if (mode == "tab1_lag") {
+      std::vector<T> gridU, gridC;
+      generateUniformGrid(n, func.a(), func.b(), gridU);
+      generateChebyshevGrid(n, func.a(), func.b(), gridC);
+
+      LagInt<T> lagU(func, gridU);
+      LagInt<T> lagC(func, gridC);
+
+      //  n & (uniform error) & (chebyshev error) \\ \hline
+      std::cout << n << " & " << calculationErrorNorm(lagU, func, canonicGrid) << " & "
+                << calculationErrorNorm(lagC, func, canonicGrid) << R"( \\ \hline)" << std::endl;
+    } else if (mode == "tab2_lag_u") {
+      std::vector<T> gridU;
+      generateUniformGrid(n, func.a(), func.b(), gridU);
+
+      T h = (func.b() - func.a()) / n;
+
+      LagInt<T> lagU(func, gridU);
+
+      T calcError = calculationErrorNorm(lagU, func, canonicGrid);
+      std::cout << i++ << " (" << n << ") " << " & " << h << " & "
+                << calcError << " & "
+                << calcError / lastCalcError << " & "
+                << std::log(calcError / lastCalcError ) / std::log(0.5)
+                << R"( \\ \hline)" << std::endl;
+      lastCalcError = calcError;
+    } else if (mode == "tab2_lag_c") {
+      std::vector<T> gridC;
+      generateChebyshevGrid(n, func.a(), func.b(), gridC);
+
+      T h = (func.b() - func.a()) / n;
+
+      LagInt<T> lagU(func, gridC);
+
+      T calcError = calculationErrorNorm(lagU, func, canonicGrid);
+      std::cout << i++ << " (" << n << ") " << " & " << h << " & "
+                << calcError << " & "
+                << calcError / lastCalcError << " & "
+                << std::log(calcError / lastCalcError ) / std::log(0.5)
+                << R"( \\ \hline)" << std::endl;
+      lastCalcError = calcError;
+    } else if (mode == "tab2_spline") {
+      std::vector<T> gridU;
+      generateUniformGrid(n, func.a(), func.b(), gridU);
+
+      T h = (func.b() - func.a()) / n;
+
+      CubicSplineInt<T> splineU(func, gridU);
+
+      T calcError = calculationErrorNorm(splineU, func, canonicGrid);
+      std::cout << i++ << " (" << n << ") " << " & " << h << " & "
+                << calcError << " & "
+                << calcError / lastCalcError << " & "
+                << std::log(calcError / lastCalcError ) / std::log(0.5)
+                << R"( \\ \hline)" << std::endl;
+      lastCalcError = calcError;
+    }
+  }
+}
+
+template <class T>
 int lab3Main(int argc, char** argv) {
   if (!cmdOptionExists(argv, argv + argc, "-grid")) {
     std::cerr << "grid type is not specified" << std::endl;
@@ -54,6 +129,26 @@ int lab3Main(int argc, char** argv) {
     func = std::make_shared<Runge<T, 25>>();
   } else if (functionId == "target") {
     func = std::make_shared<TestVar<T>>();
+  } else if (functionId == "const") {
+    func = std::make_shared<ConstTest<T>>();
+  } else if (functionId == "linear") {
+    func = std::make_shared<LinearTest<T>>();
+  } else if (functionId == "quad") {
+    func = std::make_shared<QuadTest<T>>();
+  } else if (functionId == "sin1") {
+    func = std::make_shared<SinTest<T>>(-1, 1);
+  } else if (functionId == "sin125") {
+    func = std::make_shared<SinTest<T>>(-1.25, 1.25);
+  } else {
+    std::cerr << "func wrong argument" << std::endl;
+    return -2;
+  }
+
+  if (cmdOptionExists(argv, argv + argc, "-report")) {
+    std::string mode = getCmdOption(argv, argv + argc, "-report");
+    std::cout << "enter report mode: " << mode << std::endl;
+    lab3generateFunctionReport(*func, mode);
+    return 0;
   }
 
   if (!cmdOptionExists(argv, argv + argc, "-n")) {
@@ -70,7 +165,7 @@ int lab3Main(int argc, char** argv) {
     generateChebyshevGrid(gridN, func->a(), func->b(), grid);
   }
 
-#define DEBUG_RESULTS
+//#define DEBUG_RESULTS
 #ifdef DEBUG_RESULTS
   std::ostringstream os;
   for (auto& it : grid) {
@@ -110,8 +205,10 @@ int lab3Main(int argc, char** argv) {
 
   plt::ylim(-1, 2);
 
-//  std::string filename = "./results/" + functionId + "_" + gridType + "_" + std::to_string(gridN) + ".png";
-  std::string filename = "results/result.png";
+  std::string filename = "./results/" + functionId + "_" + gridType + "_"
+      + std::to_string(gridN) + "_" + interpolationMethod + ".png";
+
+//  std::string filename = "results/result.png";
 
   std::cout << "calculation error norm: "
             << calculationErrorNorm(*func, *interpFunc, canonicGrid)

@@ -57,3 +57,43 @@ public:
     return r1 + r2 - 1.5;
   }
 };
+
+template <class T>
+class ConstTest : public FuncHolder<T> {
+public:
+  ConstTest() : FuncHolder<T>(-1, 1) {};
+
+  T operator()(const T& x) const override {
+    return 1;
+  }
+};
+
+template <class T>
+class LinearTest : public FuncHolder<T> {
+public:
+  LinearTest() : FuncHolder<T>(-1, 1) {};
+
+  T operator()(const T& x) const override {
+    return x;
+  }
+};
+
+template <class T>
+class QuadTest : public FuncHolder<T> {
+public:
+  QuadTest() : FuncHolder<T>(-1, 1) {};
+
+  T operator()(const T& x) const override {
+    return x * x;
+  }
+};
+
+template <class T>
+class SinTest : public FuncHolder<T> {
+public:
+  SinTest(T a, T b) : FuncHolder<T>(a, b) {};
+
+  T operator()(const T& x) const override {
+    return std::sin(bmc::pi<T>() * x);
+  }
+};

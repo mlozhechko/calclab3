@@ -20,7 +20,7 @@ template <class T>
 int generateChebyshevGrid(ssize_t nodesNumber, T a, T b, std::vector<T>& grid);
 
 template <class T>
-T calculationErrorNorm(FuncHolder<T>& func1, FuncHolder<T>& func2, std::vector<T>& grid);
+T calculationErrorNorm(const FuncHolder<T>& func1, const FuncHolder<T>& func2, const std::vector<T>& grid);
 
 ///*
 // * following classes extends function holder
@@ -74,7 +74,7 @@ int generateChebyshevGrid(ssize_t nodesNumber, T a, T b, std::vector<T>& grid) {
 }
 
 template <class T>
-T calculationErrorNorm(FuncHolder<T>& func1, FuncHolder<T>& func2, std::vector<T>& grid) {
+T calculationErrorNorm(const FuncHolder<T>& func1, const FuncHolder<T>& func2, const std::vector<T>& grid) {
   const ssize_t n = grid.size();
 
   T maxDelta = 0;

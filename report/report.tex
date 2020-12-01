@@ -1,0 +1,70 @@
+\documentclass[12pt]{article}
+% Эта строка — комментарий, она не будет показана в выходном файле
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc} % Включаем поддержку UTF8
+\usepackage[russian]{babel}  % Включаем пакет для поддержки русского языка
+\usepackage{amsmath, amsthm, amssymb, amsfonts}
+\usepackage{multirow}
+\usepackage{pbox}
+\usepackage[showframe=false]{geometry}
+\usepackage{changepage}
+\usepackage{graphicx}
+
+\date{}
+\author{}
+
+\renewcommand{\thesubsection}{\arabic{subsection}}
+\makeatletter
+\def\@seccntformat#1{\@ifundefined{#1@cntformat}%
+	{\csname the#1\endcsname\quad}%    default
+	{\csname #1@cntformat\endcsname}}% enable individual control
+\newcommand\section@cntformat{}     % section level 
+\makeatother
+
+
+\begin{document}
+\subsection{Результаты выполнения лабораторной работы №4}
+
+\subsubsection{Исследование функции $f(x) = 1$ на $[-1, 1]$}
+Результаты:\\
+\begin{tabular}{|l|l|l|}
+\hline Количество узлов n & \pbox{20cm}{Норма ошибки\\ на равномерной сетке} & \pbox{20cm}{Норма ошибки\\ на чебышевской сетке} \\ \hline
+4 & 0.438332 & 0.402016 \\ \hline
+8 & 1.04486 & 0.17083 \\ \hline
+16 & 14.3699 & 0.0326112 \\ \hline
+32 & 5026.8 & 0.00140123 \\ \hline
+64 & 1.04155e+09 & 2.45011e-06 \\ \hline
+128 & 9.93261e+19 & 7.24065e-12 \\ \hline
+\end{tabular}\\
+
+
+На Рис: \ref{fig:constchebyshev4lagrange},  \ref{fig:constchebyshev128lagrange}, \ref{fig:constuniform4lagrange} и \ref{fig:constuniform128lagrange}
+представлены графики построенных полиномов.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../results/const_chebyshev_4_lagrange}
+	\caption{Полином Лагранжа, чебышевская сетка, $n = 4$}
+	\label{fig:constchebyshev4lagrange}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../results/const_chebyshev_128_lagrange}
+	\caption{Полином Лагранжа, чебышевская сетка, $n = 128$}
+	\label{fig:constchebyshev128lagrange}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../results/const_uniform_4_lagrange}
+	\caption{Полином Лагранжа, равномерная сетка, $n = 4$}
+	\label{fig:constuniform4lagrange}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{../results/const_uniform_128_lagrange}
+	\caption{Полином Лагранжа, равномерная сетка, $n = 128$}
+	\label{fig:constuniform128lagrange}
+\end{figure}
+
+
+\end{document}
