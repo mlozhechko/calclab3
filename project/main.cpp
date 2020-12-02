@@ -56,46 +56,61 @@ int lab3generateFunctionReport(const FuncHolder<T>& func, const std::string& mod
     } else if (mode == "tab2_lag_u") {
       std::vector<T> gridU;
       generateUniformGrid(n, func.a(), func.b(), gridU);
-
       T h = (func.b() - func.a()) / n;
-
       LagInt<T> lagU(func, gridU);
-
       T calcError = calculationErrorNorm(lagU, func, canonicGrid);
+
+      T relErr = 0;
+      T logRelErr = 0;
+      if (std::abs(lastCalcError) > std::numeric_limits<T>::epsilon()) {
+        relErr = calcError / lastCalcError;
+        logRelErr = std::log(calcError / lastCalcError);
+      }
+
       std::cout << i++ << " (" << n << ") " << " & " << h << " & "
                 << calcError << " & "
-                << calcError / lastCalcError << " & "
-                << std::log(calcError / lastCalcError ) / std::log(0.5)
+                << relErr << " & "
+                << logRelErr / std::log(0.5)
                 << R"( \\ \hline)" << std::endl;
       lastCalcError = calcError;
     } else if (mode == "tab2_lag_c") {
       std::vector<T> gridC;
       generateChebyshevGrid(n, func.a(), func.b(), gridC);
-
       T h = (func.b() - func.a()) / n;
-
       LagInt<T> lagU(func, gridC);
-
       T calcError = calculationErrorNorm(lagU, func, canonicGrid);
+
+      T relErr = 0;
+      T logRelErr = 0;
+      if (std::abs(lastCalcError) > std::numeric_limits<T>::epsilon()) {
+        relErr = calcError / lastCalcError;
+        logRelErr = std::log(calcError / lastCalcError);
+      }
+
       std::cout << i++ << " (" << n << ") " << " & " << h << " & "
                 << calcError << " & "
-                << calcError / lastCalcError << " & "
-                << std::log(calcError / lastCalcError ) / std::log(0.5)
+                << relErr << " & "
+                << logRelErr / std::log(0.5)
                 << R"( \\ \hline)" << std::endl;
       lastCalcError = calcError;
     } else if (mode == "tab2_spline") {
       std::vector<T> gridU;
       generateUniformGrid(n, func.a(), func.b(), gridU);
-
       T h = (func.b() - func.a()) / n;
-
       CubicSplineInt<T> splineU(func, gridU);
-
       T calcError = calculationErrorNorm(splineU, func, canonicGrid);
+
+      T relErr = 0;
+      T logRelErr = 0;
+      if (std::abs(lastCalcError) > std::numeric_limits<T>::epsilon()) {
+        relErr = calcError / lastCalcError;
+        logRelErr = std::log(calcError / lastCalcError);
+      }
+
       std::cout << i++ << " (" << n << ") " << " & " << h << " & "
                 << calcError << " & "
-                << calcError / lastCalcError << " & "
-                << std::log(calcError / lastCalcError ) / std::log(0.5)
+                << relErr << " & "
+                << logRelErr / std::log(0.5)
                 << R"( \\ \hline)" << std::endl;
       lastCalcError = calcError;
     }

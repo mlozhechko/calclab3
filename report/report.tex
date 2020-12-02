@@ -9,6 +9,7 @@
 \usepackage[showframe=false]{geometry}
 \usepackage{changepage}
 \usepackage{graphicx}
+\usepackage{float}
 
 \date{}
 \author{}
@@ -21,50 +22,180 @@
 \newcommand\section@cntformat{}     % section level 
 \makeatother
 
+\newcommand{\lagrange}[3] {
+	На Рис: \ref{fig:#1chebyshev#2lagrange},  \ref{fig:#1chebyshev#3lagrange}, \ref{fig:#1uniform#2lagrange} и \ref{fig:#1uniform#3lagrange}
+	представлены графики построенных полиномов Лагранжа.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{../results/#1_chebyshev_#2_lagrange}
+		\caption{Полином Лагранжа, чебышевская сетка, $n = #2$}
+		\label{fig:#1chebyshev#2lagrange}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{../results/#1_chebyshev_#3_lagrange}
+		\caption{Полином Лагранжа, чебышевская сетка, $n = #3$}
+		\label{fig:#1chebyshev#3lagrange}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{../results/#1_uniform_#2_lagrange}
+		\caption{Полином Лагранжа, равномерная сетка, $n = #2$}
+		\label{fig:#1uniform#2lagrange}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{../results/#1_uniform_#3_lagrange}
+		\caption{Полином Лагранжа, равномерная сетка, $n = #3$}
+		\label{fig:#1uniform#3lagrange}
+	\end{figure}
+}
+
+\newcommand{\spline}[3] {
+	На Рис:  \ref{fig:#1uniform#2spline} и \ref{fig:#1uniform#3spline} представлены результаты Сплайн интерполяции.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{../results/#1_uniform_#2_spline}
+		\caption{Сплйн интерполяция, равномерная сетка, $n = #2$}
+		\label{fig:#1uniform#2spline}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.7\linewidth]{../results/#1_uniform_#3_spline}
+		\caption{Сплайн интерполяция, равномерная сетка, $n = #3$}
+		\label{fig:#1uniform#3spline}
+	\end{figure}
+}
 
 \begin{document}
-\subsection{Результаты выполнения лабораторной работы №4}
+\section{Результаты выполнения лабораторной работы №4}
+\subsection{Интерполяция $f(x) = 1$ и $f(x) = x$ на $[-1, 1]$ многочленом Лагранжа}
 
 \subsubsection{Исследование функции $f(x) = 1$ на $[-1, 1]$}
 Результаты:\\
 \begin{tabular}{|l|l|l|}
 \hline Количество узлов n & \pbox{20cm}{Норма ошибки\\ на равномерной сетке} & \pbox{20cm}{Норма ошибки\\ на чебышевской сетке} \\ \hline
-4 & 0.438332 & 0.402016 \\ \hline
-8 & 1.04486 & 0.17083 \\ \hline
-16 & 14.3699 & 0.0326112 \\ \hline
-32 & 5026.8 & 0.00140123 \\ \hline
-64 & 1.04155e+09 & 2.45011e-06 \\ \hline
-128 & 9.93261e+19 & 7.24065e-12 \\ \hline
+4 & 2.22045e-16 & 6.66134e-16 \\ \hline
+8 & 1.33227e-15 & 8.88178e-16 \\ \hline
+16 & 1.66978e-13 & 1.77636e-15 \\ \hline
+32 & 4.59099e-09 & 1.9984e-15 \\ \hline
+64 & 9.38634 & 2.88658e-15 \\ \hline
+128 & 6.58355e+19 & 5.32907e-15 \\ \hline
+\end{tabular}\\
+\lagrange{const}{4}{64}
+
+\subsubsection{Исследование функции $f(x) = x$ на $[-1, 1]$}
+Результаты:\\
+\begin{tabular}{|l|l|l|}
+\hline Количество узлов n & \pbox{20cm}{Норма ошибки\\ на равномерной сетке} & \pbox{20cm}{Норма ошибки\\ на чебышевской сетке} \\ \hline
+4 & 2.22045e-16 & 5.55112e-16 \\ \hline
+8 & 6.66134e-16 & 7.77156e-16 \\ \hline
+16 & 2.9976e-14 & 1.11022e-15 \\ \hline
+32 & 5.10888e-10 & 1.66533e-15 \\ \hline
+64 & 0.957783 & 2.44249e-15 \\ \hline
+128 & 3.53617e+18 & 3.33067e-15 \\ \hline
+\end{tabular}\\
+
+\lagrange{linear}{4}{64}
+
+\subsection{Исследование функции Рунге $f(x) = \frac{1}{1 + 25x^2}$}
+\lagrange{runge}{4}{32}
+\spline{runge}{4}{32}
+
+
+
+\subsection{Сплайн интерполяция $f(x) = x$ и $f(x) = x^2$ на $[-1, 1]$}
+
+\subsubsection{$f(x) = x$ на $[-1, 1]$}
+\begin{tabular}{|l|l|l|l|l|}
+	\hline 
+	Итер.(n) & Шаг сетки $h_n$ & Норма ошибки $err_n$ &  Отношение ошибок $z_n$ & Порядок сход. $p_n$ \\ \hline
+	1 (4)  & 0.5 & 0 & 0 & 0 \\ \hline
+	2 (8)  & 0.25 & 0 & 0 & 0 \\ \hline
+	3 (16)  & 0.125 & 0 & 0 & 0 \\ \hline
+	4 (32)  & 0.0625 & 0 & 0 & 0 \\ \hline
+	5 (64)  & 0.03125 & 0 & 0 & 0 \\ \hline
+	6 (128)  & 0.015625 & 0 & 0 & 0 \\ \hline
+\end{tabular}\\
+
+\spline{linear}{4}{32}
+
+\subsubsection{$f(x) = x^2$ на $[-1, 1]$}
+\begin{tabular}{|l|l|l|l|l|}
+	\hline 
+	Итер.(n) & Шаг сетки $h_n$ & Норма ошибки $err_n$ &  Отношение ошибок $z_n$ & Порядок сход. $p_n$ \\ \hline
+	1 (4)  & 0.5 & 0.0240653 & 0.0240653 & 5.3769 \\ \hline
+	2 (8)  & 0.25 & 0.00613498 & 0.254931 & 1.97182 \\ \hline
+	3 (16)  & 0.125 & 0.0015339 & 0.250025 & 1.99985 \\ \hline
+	4 (32)  & 0.0625 & 0.000383475 & 0.25 & 2 \\ \hline
+	5 (64)  & 0.03125 & 9.58687e-05 & 0.25 & 2 \\ \hline
+	6 (128)  & 0.015625 & 2.23404e-05 & 0.233031 & 2.1014 \\ \hline
+\end{tabular}\\
+
+\spline{quad}{4}{32}
+
+\subsection{Интерполяция $f(x) = \sin{\pi x}$ на $[-1, 1]$ и $[-1.25, 1.25]$}
+\subsubsection{Сплайн интерполяция $f(x) = \sin{\pi x}$ на $[-1, 1]$}
+\begin{tabular}{|l|l|l|l|l|}
+	\hline 
+	Итер.(n) & Шаг сетки $h_n$ & Норма ошибки $err_n$ &  Отношение ошибок $z_n$ & Порядок сход. $p_n$ \\ \hline
+	1 (4)  & 0.5 & 0.0200162 & 0.0200162 & 5.64268 \\ \hline
+	2 (8)  & 0.25 & 0.00106609 & 0.053261 & 4.23078 \\ \hline
+	3 (16)  & 0.125 & 6.31129e-05 & 0.0592006 & 4.07824 \\ \hline
+	4 (32)  & 0.0625 & 3.8893e-06 & 0.0616244 & 4.02035 \\ \hline
+	5 (64)  & 0.03125 & 2.42209e-07 & 0.0622759 & 4.00518 \\ \hline
+	6 (128)  & 0.015625 & 1.51244e-08 & 0.0624436 & 4.0013 \\ \hline
+\end{tabular}\\
+
+\spline{sin1}{4}{32}
+
+\subsubsection{Сплайн интерполяция $f(x) = \sin{\pi x}$ на $[-1.25, 1.25]$}
+\begin{tabular}{|l|l|l|l|l|}
+	\hline 
+	Итер.(n) & Шаг сетки $h_n$ & Норма ошибки $err_n$ &  Отношение ошибок $z_n$ & Порядок сход. $p_n$ \\ \hline
+	1 (4)  & 0.625 & 0.159895 & 0.159895 & 2.6448 \\ \hline
+	2 (8)  & 0.3125 & 0.0368117 & 0.230224 & 2.11889 \\ \hline
+	3 (16)  & 0.15625 & 0.00859868 & 0.233586 & 2.09798 \\ \hline
+	4 (32)  & 0.078125 & 0.00210632 & 0.244958 & 2.02939 \\ \hline
+	5 (64)  & 0.0390625 & 0.000523695 & 0.248631 & 2.00792 \\ \hline
+	6 (128)  & 0.0195312 & 0.000121869 & 0.23271 & 2.1034 \\ \hline
+\end{tabular}\\
+
+\spline{sin125}{4}{32}
+
+\subsubsection{Интерполяция  $f(x) = \sin{\pi x}$ полиномом Лагранжа на $[-1, 1]$}
+\textit{Равномерная сетка:}\\
+
+
+\begin{tabular}{|l|l|l|l|l|}
+	\hline 
+	Итер.(n) & Шаг сетки $h_n$ & Норма ошибки $err_n$ &  Отношение ошибок $z_n$ & Порядок сход. $p_n$ \\ \hline
+	1 (4)  & 0.5 & 0.180758 & 0.180758 & 2.46787 \\ \hline
+	2 (8)  & 0.25 & 0.00120515 & 0.00666722 & 7.2287 \\ \hline
+	3 (16)  & 0.125 & 6.65075e-10 & 5.5186e-07 & 20.7892 \\ \hline
+	4 (32)  & 0.0625 & 1.46266e-09 & 2.19925 & -1.13701 \\ \hline
+	5 (64)  & 0.03125 & 2.66712 & 1.82346e+09 & -30.764 \\ \hline
+	6 (128)  & 0.015625 & 1.11681e+19 & 4.18733e+18 & -61.8607 \\ \hline
 \end{tabular}\\
 
 
-На Рис: \ref{fig:constchebyshev4lagrange},  \ref{fig:constchebyshev128lagrange}, \ref{fig:constuniform4lagrange} и \ref{fig:constuniform128lagrange}
-представлены графики построенных полиномов.
+\textit{Чебышевская сетка:}\\
 
-\begin{figure}
-	\centering
-	\includegraphics[width=0.7\linewidth]{../results/const_chebyshev_4_lagrange}
-	\caption{Полином Лагранжа, чебышевская сетка, $n = 4$}
-	\label{fig:constchebyshev4lagrange}
-\end{figure}
-\begin{figure}
-	\centering
-	\includegraphics[width=0.7\linewidth]{../results/const_chebyshev_128_lagrange}
-	\caption{Полином Лагранжа, чебышевская сетка, $n = 128$}
-	\label{fig:constchebyshev128lagrange}
-\end{figure}
-\begin{figure}
-	\centering
-	\includegraphics[width=0.7\linewidth]{../results/const_uniform_4_lagrange}
-	\caption{Полином Лагранжа, равномерная сетка, $n = 4$}
-	\label{fig:constuniform4lagrange}
-\end{figure}
-\begin{figure}
-	\centering
-	\includegraphics[width=0.7\linewidth]{../results/const_uniform_128_lagrange}
-	\caption{Полином Лагранжа, равномерная сетка, $n = 128$}
-	\label{fig:constuniform128lagrange}
-\end{figure}
+
+\begin{tabular}{|l|l|l|}
+	\hline 
+	Итер.(n) & Норма ошибки $err_n$ &  Отношение ошибок $z_n$ \\ \hline
+	1 (4)  &  0.115553 & 0.115553 \\ \hline
+	2 (8)  &  0.00026113 & 0.00225982  \\ \hline
+	3 (16)  & 1.07235e-11 & 4.10659e-08  \\ \hline
+	4 (32)  &  1.88738e-15 & 0.000176003  \\ \hline
+	5 (64)  &  2.10942e-15 & 1.11765 \\ \hline
+	6 (128)  & 3.21965e-15 & 1.52632  \\ \hline
+\end{tabular}\\
+
+\lagrange{sin1}{4}{32}
 
 
 \end{document}
