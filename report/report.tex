@@ -10,6 +10,14 @@
 \usepackage{changepage}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks,
+	citecolor=blue,
+	filecolor=blue,
+	linkcolor=blue,
+	urlcolor=blue
+}
 
 \date{}
 \author{}
@@ -70,6 +78,9 @@
 }
 
 \begin{document}
+	
+\tableofcontents
+\clearpage
 \section{Результаты выполнения лабораторной работы №4}
 \subsection{Интерполяция $f(x) = 1$ и $f(x) = x$ на $[-1, 1]$ многочленом Лагранжа}
 
@@ -100,11 +111,49 @@
 
 \lagrange{linear}{4}{64}
 
+\subsubsection{Интерпретация результатов}
+Воспользуемся оценкой 
+\begin{equation}
+\left|y(x)-L_{n}(x)\right| \leqslant \frac{M_{n+1}}{(n+1) !}\left|\omega_{n+1}(x)\right|
+\label{eq:lagest}
+\end{equation}
+где $M_{n+1}=\max _{x \in\left[x_{0}, x_{n}\right]}\left|y^{(n+1)}(x)\right|, \omega_{n+1}(x)=\prod_{k=0}^{n}\left(x-x_{k}\right)$.\\
+Таким образом погрешность модели для $f(x) = 1$ и $f(x) = x$ нулевая, поскольку $M_{n + 1} = 0$ при $n > 2$ для обоих функций.
+
+На практике при использовании равномерной сетки возникает погрешность вычислений, связанная с операциями сложения чисел, которые при большом количестве узлов интерполяции $(n >= 128)$,
+отличаются друг от друга на более чем 17 порядков.
+
+Такое поведение наблюдается только для равномерной сетки. Причина этого в том, что $\|P_n\| = \max _{a \leq t \leq b} \sum_{k=0}^{n}\left|\prod_{j=0 \atop j \neq k}^{n} \frac{t-t_{j}}{t_{k}-t_{j}}\right|$ растёт для равномерных сеток экспоненциально 
+\begin{equation}
+\|P_n\| \geq O(2^n)
+\label{eq:uniest}
+\text{см [1, 13.7].}
+\end{equation} Для чебышевских сеток имеем оценку 
+\begin{equation}
+\|P_n\| = O(\ln n) 
+\text{[см. 1, 13.8.1]}.
+\label{eq:cheb}
+\end{equation}
+
 \subsection{Исследование функции Рунге $f(x) = \frac{1}{1 + 25x^2}$}
+\subsubsection{Результаты}
+\begin{tabular}{|l|l|l|}
+\hline Количество узлов n & \pbox{20cm}{Норма ошибки\\ на равномерной сетке} & \pbox{20cm}{Норма ошибки\\ на чебышевской сетке} \\ \hline
+4 & 0.438332 & 0.402016 \\ \hline
+8 & 1.04486 & 0.17083 \\ \hline
+16 & 14.3699 & 0.0326112 \\ \hline
+32 & 5026.8 & 0.00140123 \\ \hline
+64 & 1.04155e+09 & 2.45011e-06 \\ \hline
+128 & 9.93261e+19 & 7.24065e-12 \\ \hline
+\end{tabular}\\
+
+\subsubsection{Графики}
 \lagrange{runge}{4}{32}
 \spline{runge}{4}{32}
 
-
+\subsubsection{Интерпретация результатов.} 
+Рассмотрим интерполяцию полиномом Лагранжа. Для функции Рунге $M_{n+1}$ См. \ref{eq:lagest} возрастает с ростом n. В связи с этим норма ошибки на равномерной сетке растет.
+Для чебышевской сетки интерполяция "сходится" по причине того, что порядок роста $M_{n+1}$ не превышает порядка уменьшения $\frac{|\omega_{n+1}(x)}{(n + 1)!}$ см. [1, 13.8].
 
 \subsection{Сплайн интерполяция $f(x) = x$ и $f(x) = x^2$ на $[-1, 1]$}
 
@@ -122,6 +171,15 @@
 
 \spline{linear}{4}{32}
 
+\subsubsection{Интерпретация}
+Воспользуемся оценкой
+\begin{equation}
+\max _{x \in\left[x_{0}, x_{n}\right]}|y(x)-S(x)| \leqslant C_{1} M_{4} h_{\max }^{4}
+\label{eq:spline}
+\end{equation}
+где $M_{4}=\max _{x \in\left[x_{0}, x_{n}\right]}\left|y^{I V}(x)\right|$
+Произодная $f(x) = x$, согласно оценке норма ошибки равна нулю. 
+
 \subsubsection{$f(x) = x^2$ на $[-1, 1]$}
 \begin{tabular}{|l|l|l|l|l|}
 	\hline 
@@ -135,6 +193,10 @@
 \end{tabular}\\
 
 \spline{quad}{4}{32}
+
+\subsubsection{Интерпретация}
+Для $f(x) = x^2$ не выполняются краевые условия $S^{\prime \prime}\left(x_{0}\right)=S^{\prime \prime}\left(x_{n}\right)=0$ в связи с чем сплайн не соответствую полностью функции и в оценке \ref{eq:spline} $M_4 \neq 0$
+
 
 \subsection{Интерполяция $f(x) = \sin{\pi x}$ на $[-1, 1]$ и $[-1.25, 1.25]$}
 \subsubsection{Сплайн интерполяция $f(x) = \sin{\pi x}$ на $[-1, 1]$}
@@ -205,5 +267,10 @@ $f(x) = \sin(\frac{2 * x^2 - x + 2 \cdot 7^{\frac{1}{3}} - 5}{2}) + e^{\frac{x^2
 \spline{target}{4}{32}
 \lagrange{target}{4}{32}
 
+\begin{thebibliography}{3}
+\bibitem{tyrtyshnikov}
+Тыртышнников Е.Е. Методы численного анализа. М.: 2006.
+	
+\end{thebibliography}
 
 \end{document}
