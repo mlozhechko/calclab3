@@ -8,6 +8,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 find_package(Python3 COMPONENTS Development NumPy)
 
+include_directories(project/libs)
 include_directories(project)
 add_executable(calc4 project/main.cpp project/system_solver.h project/utils.h
         project/matrix_utils.h project/eigen_solver.h project/stat_holder.h
